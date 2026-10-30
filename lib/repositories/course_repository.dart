@@ -19,4 +19,9 @@ class CourseRepository {
   Future<void> updateCourse(int id, Course course) {
     return apiService.updateCourse(id, course);
   }
+
+  // TAHAP 8: Fungsi DELETE (Meneruskan dari Service)
+  Future<void> deleteCourse(int id) {
+    return apiService.deleteCourse(id);
+  }
 }

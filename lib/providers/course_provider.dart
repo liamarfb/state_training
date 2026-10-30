@@ -65,7 +65,35 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
+  // TAHAP 8: Fungsi memproses DELETE dari UI
+  Future<bool> removeCourse(Course course) async {
+    if (course.id == null) return false;
+
+    isSaving = true;
+    notifyListeners();
+    
+    try {
+      // 1. Hapus dari server
+      await repository.deleteCourse(course.id!);
+      
+      // 2. Hapus dari daftar favorites lokal jika ada (Poin 6)
+      if (favorites.contains(course.code)) {
+        favorites.remove(course.code);
+      }
+      
+      // 3. Refresh list dari server
+      await loadCourses(); 
+      return true;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
+
   // --- Fungsi Favorites dari tahap sebelumnya ---
   bool isFavorite(String code) => favorites.contains(code);
 
