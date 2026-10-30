@@ -1,27 +1,13 @@
-import '../services/course_api_service.dart';
+import '../services/course_data_source.dart'; // Import abstract class
 import '../models/course.dart';
 
 class CourseRepository {
-  final CourseApiService apiService;
+  // Bergantung pada abstraksi, BUKAN implementasi konkret
+  final CourseDataSource dataSource; 
 
-  CourseRepository(this.apiService);
-
-  Future<List<Course>> getCourses() {
-    return apiService.getCourses();
-  }
-
-  // TAHAP 6: Fungsi POST dari service
-  Future<Course> createCourse(Course course) {
-    return apiService.createCourse(course);
-  }
-
-  // TAHAP 7: Fungsi PUT (Meneruskan dari Service)
-  Future<void> updateCourse(int id, Course course) {
-    return apiService.updateCourse(id, course);
-  }
-
-  // TAHAP 8: Fungsi DELETE (Meneruskan dari Service)
-  Future<void> deleteCourse(int id) {
-    return apiService.deleteCourse(id);
-  }
+  CourseRepository(this.dataSource);
+  Future<List<Course>> getCourses() => dataSource.getCourses();
+  Future<Course> createCourse(Course course) => dataSource.createCourse(course);
+  Future<void> updateCourse(int id, Course course) => dataSource.updateCourse(id, course);
+  Future<void> deleteCourse(int id) => dataSource.deleteCourse(id);
 }

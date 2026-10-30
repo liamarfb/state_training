@@ -1,63 +1,52 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/course.dart';
+import 'course_data_source.dart'; // Import kontraknya
 
-class CourseApiService {
+class CourseApiService implements CourseDataSource { // Wajib implement kontrak
   CourseApiService(this.baseUrl);
 
   final String baseUrl;
 
+  @override
   Future<List<Course>> getCourses() async {
     final response = await http.get(Uri.parse('$baseUrl/courses'));
-
     if (response.statusCode != 200) {
       throw Exception('Gagal mengambil course');
     }
-
     final List data = jsonDecode(response.body) as List;
-    return data
-        .map((e) => Course.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return data.map((e) => Course.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  // TAHAP 6: Fungsi POST untuk membuat data baru
+  @override
   Future<Course> createCourse(Course course) async {
     final response = await http.post(
       Uri.parse('$baseUrl/courses'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(course.toJson()),
     );
-
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return Course.fromJson(
-        jsonDecode(response.body) as Map<String, dynamic>,
-      );
+      return Course.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
     }
-
-    // Ambil pesan error dari API jika ada
     final errorBody = jsonDecode(response.body);
     throw Exception(errorBody['error'] ?? 'Gagal membuat course');
   }
 
-  // TAHAP 7: Fungsi PUT untuk memperbarui data
+  @override
   Future<void> updateCourse(int id, Course course) async {
     final response = await http.put(
       Uri.parse('$baseUrl/courses/$id'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(course.toJson()),
     );
-
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Gagal memperbarui course');
     }
   }
 
-  // TAHAP 8: Fungsi DELETE untuk menghapus data
+  @override
   Future<void> deleteCourse(int id) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/courses/$id'),
-    );
-
+    final response = await http.delete(Uri.parse('$baseUrl/courses/$id'));
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Gagal menghapus course');
     }
