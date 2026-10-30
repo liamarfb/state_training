@@ -34,6 +34,8 @@ class ResponsiveShell extends StatefulWidget {
   State<ResponsiveShell> createState() => _ResponsiveShellState();
 }
 
+// TAHAP 3
+
 class _ResponsiveShellState extends State<ResponsiveShell> {
   int _currentIndex = 0;
   Set<String> favoriteCourseCodes = {};
