@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_provider.dart';
-import 'course.dart';
+import 'course.dart'; // Import model
+import 'services/course_service.dart'; // Import service Tahap 9
 
 const String studentName = 'Liam Arta Febrio'; 
 const String studentId = '2415051087'; 
 
-// Ubah Map menjadi List<Course>
+// Data Statik Course (Sementara masih dipakai UI sebelum diganti Provider di Tahap 10)
 final List<Course> coursesData = [
   Course(title: 'Pemrograman Mobile', code: 'PTI123', sks: 3, desc: 'Belajar Flutter & Dart.'),
   Course(title: 'Jaringan Komputer', code: 'PTI124', sks: 3, desc: 'Topologi, Subnetting, dan Cisco.'),
@@ -16,9 +17,21 @@ final List<Course> coursesData = [
   Course(title: 'Pemrograman Web', code: 'PTI128', sks: 3, desc: 'Laravel, Tailwind, PHP.'),
 ];
 
-void main() {
+// TAHAP 9: Ubah main menjadi async untuk menguji service
+void main() async {
+  // Wajib dipanggil jika ada proses async sebelum runApp
+  WidgetsFlutterBinding.ensureInitialized(); 
+  
+  // Uji coba service dari Tahap 9
+  try {
+    final service = CourseService();
+    final courses = await service.loadCourses();
+    debugPrint('BERHASIL MEMUAT ${courses.length} MATA KULIAH DARI JSON');
+  } catch (e) {
+    debugPrint('Error memuat data JSON: $e');
+  }
+
   runApp(
-    // TAHAP 6: Membungkus aplikasi dengan ChangeNotifierProvider
     ChangeNotifierProvider(
       create: (context) => CourseProvider(),
       child: const CourseExplorerApp(),
@@ -53,7 +66,6 @@ class ResponsiveShell extends StatefulWidget {
 class _ResponsiveShellState extends State<ResponsiveShell> {
   int _currentIndex = 0;
   
-  // Karena sudah pakai Provider, kita kembalikan lagi ke list sederhana
   final List<Widget> _pages = const [
     HomePage(), 
     CoursesPage(), 
@@ -116,7 +128,6 @@ class HomePage extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    // TAHAP 7: Menggunakan watch() untuk memantau jumlah favorit
     final favoriteCount = context.watch<CourseProvider>().favorites.length;
 
     return Center(
@@ -130,7 +141,6 @@ class HomePage extends StatelessWidget {
           Text('$studentId - $studentName', style: const TextStyle(fontSize: 18, color: Colors.grey)),
           
           const SizedBox(height: 40),
-          // Menampilkan nilai yang di-watch
           Text('Jumlah Favorite: $favoriteCount', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.indigo)),
         ],
       ),
@@ -139,7 +149,6 @@ class HomePage extends StatelessWidget {
 }
 
 class CoursesPage extends StatelessWidget {
-  // Constructor kembali bersih tanpa parameter data passing
   const CoursesPage({super.key});
   
   @override
@@ -197,9 +206,9 @@ class ProfilePage extends StatelessWidget {
 // 3. REUSABLE WIDGETS & DETAILS
 // ==========================================
 class CourseItemCard extends StatelessWidget {
+  // TAHAP 8: Tipe data diganti menjadi Object Course (bukan Map lagi)
   final Course course;
   
-  // Constructor kembali bersih
   const CourseItemCard({super.key, required this.course});
 
   @override
@@ -209,12 +218,12 @@ class CourseItemCard extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.indigo, 
+          // Menggunakan properti object (.code) bukan key map (['code'])
           child: Text(course.code.substring(3), style: const TextStyle(color: Colors.white))
         ),
         title: Text(course.title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${course.code} - ${course.sks} SKS'),
         
-        // TAHAP 7: Gunakan Consumer HANYA pada bagian ikon
         trailing: Consumer<CourseProvider>(
           builder: (context, provider, child) {
             final isFavorite = provider.favorites.contains(course.code);
@@ -243,7 +252,6 @@ class CourseDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TAHAP 7: Gunakan watch() untuk mendengarkan perubahan favorit pada halaman ini
     final isFavorite = context.watch<CourseProvider>().favorites.contains(course.code);
 
     return Scaffold(
@@ -269,7 +277,6 @@ class CourseDetailPage extends StatelessWidget {
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // TAHAP 7: Gunakan read() saat melakukan Action
                   context.read<CourseProvider>().toggleFavorite(course.code); 
                 },
                 icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: isFavorite ? Colors.red : null),

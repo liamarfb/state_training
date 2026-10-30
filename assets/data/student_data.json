@@ -1,0 +1,14 @@
+{
+  "student": {
+    "name": "Liam Arta Febrio",
+    "id": "2415051087"
+  },
+  "courses": [
+    {"title": "Pemrograman Mobile", "code": "PTI123", "sks": 3, "desc": "Belajar Flutter & Dart."},
+    {"title": "Jaringan Komputer", "code": "PTI124", "sks": 3, "desc": "Topologi, Subnetting, dan Cisco."},
+    {"title": "Sistem Basis Data", "code": "PTI125", "sks": 4, "desc": "MySQL, Relasi, dan Normalisasi."},
+    {"title": "Kecerdasan Buatan", "code": "PTI126", "sks": 3, "desc": "Fuzzy Logic, AI, Python."},
+    {"title": "Sistem Informasi Geografis", "code": "PTI127", "sks": 3, "desc": "WebGIS, Pemetaan, Spasial."},
+    {"title": "Pemrograman Web", "code": "PTI128", "sks": 3, "desc": "Laravel, Tailwind, PHP."}
+  ]
+}
