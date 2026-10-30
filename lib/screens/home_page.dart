@@ -10,20 +10,86 @@ class HomePage extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    final favoriteCount = context.watch<CourseProvider>().favorites.length;
+    // Ambil data jumlah course dan favorit dari Provider
+    final provider = context.watch<CourseProvider>();
+    final courseCount = provider.courses.length;
+    final favoriteCount = provider.favorites.length;
 
-    return Center(
+    return ListView(
+      padding: const EdgeInsets.all(16.0),
+      children: [
+        // Card Identitas
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: BorderRadius.circular(10)
+          ),
+          child: const Text(
+            '$studentId • $studentName',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E3A8A)), // Warna biru gelap
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Row Summary Cards
+        Row(
+          children: [
+            Expanded(
+              child: _buildSummaryCard('Courses', courseCount.toString()),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildSummaryCard('Favorites', favoriteCount.toString()),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+
+        // List Progres Materi
+        _buildProgressItem('Git & GitHub', 'done', Colors.green),
+        _buildProgressItem('Dart Fundamentals', 'done', Colors.green),
+        _buildProgressItem('State Management', 'active', Colors.green),
+      ],
+    );
+  }
+
+  // Widget bantuan untuk kotak angka summary
+  Widget _buildSummaryCard(String title, String count) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.blue.shade100)
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.explore, size: 80, color: Colors.indigo),
-          const SizedBox(height: 20),
-          const Text('Selamat Datang di Course Explorer!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          const Text('$studentId - $studentName', style: TextStyle(fontSize: 18, color: Colors.grey)),
-          
-          const SizedBox(height: 40),
-          Text('Jumlah Favorite: $favoriteCount', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.indigo)),
+          Text(title, style: const TextStyle(color: Color(0xFF475569))), 
+          const SizedBox(height: 8),
+          Text(count, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+        ],
+      ),
+    );
+  }
+
+  // Widget bantuan untuk list progress
+  Widget _buildProgressItem(String title, String status, Color statusColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade300)
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E3A8A))),
+          const SizedBox(height: 4),
+          Text(status, style: TextStyle(fontWeight: FontWeight.bold, color: statusColor)),
         ],
       ),
     );

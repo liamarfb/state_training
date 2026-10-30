@@ -26,7 +26,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Course Explorer'),
+        title: const Text('Course Explorer v2'), // Ubah di sini
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
