@@ -8,28 +8,17 @@ import 'repositories/course_repository.dart';
 const String studentName = 'Liam Arta Febrio'; 
 const String studentId = '2415051087'; 
 
-// Data Statik Course (Sementara masih dipakai UI sebelum diganti Provider di Tahap 10)
-final List<Course> coursesData = [
-  Course(title: 'Pemrograman Mobile', code: 'PTI123', sks: 3, desc: 'Belajar Flutter & Dart.'),
-  Course(title: 'Jaringan Komputer', code: 'PTI124', sks: 3, desc: 'Topologi, Subnetting, dan Cisco.'),
-  Course(title: 'Sistem Basis Data', code: 'PTI125', sks: 4, desc: 'MySQL, Relasi, dan Normalisasi.'),
-  Course(title: 'Kecerdasan Buatan', code: 'PTI126', sks: 3, desc: 'Fuzzy Logic, AI, Python.'),
-  Course(title: 'Sistem Informasi Geografis', code: 'PTI127', sks: 3, desc: 'WebGIS, Pemetaan, Spasial.'),
-  Course(title: 'Pemrograman Web', code: 'PTI128', sks: 3, desc: 'Laravel, Tailwind, PHP.'),
-];
-
 // TAHAP 9: Ubah main menjadi async untuk menguji service
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); 
   
-  // Inisialisasi Service dan Repository di sini
   final service = CourseService();
   final repository = CourseRepository(service);
 
   runApp(
     ChangeNotifierProvider(
-      // Masukkan repository ke dalam Provider
-      create: (context) => CourseProvider(repository)..loadCoursesData(),
+      // Panggil loadCourses() yang baru dibuat
+      create: (context) => CourseProvider(repository)..loadCourses(),
       child: const CourseExplorerApp(),
     ),
   );
@@ -149,13 +138,36 @@ class CoursesPage extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<CourseProvider>();
+
+    // 1. Tampilkan indikator saat loading
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // 2. Tampilkan pesan jika ada error
+    if (provider.error != null) {
+      return Center(
+        child: Text('Terjadi kesalahan:\n${provider.error}', 
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.red, fontSize: 16)
+        )
+      );
+    }
+
+    // Tampilkan pesan jika data kosong
+    if (provider.courses.isEmpty) {
+      return const Center(child: Text('Tidak ada data mata kuliah.'));
+    }
+
+    // 3. Tampilkan list jika data berhasil dimuat
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 600) {
           return ListView.builder(
-            itemCount: coursesData.length,
+            itemCount: provider.courses.length,
             itemBuilder: (context, index) => CourseItemCard(
-              course: coursesData[index],
+              course: provider.courses[index], // Ambil data dari provider
             ),
           );
         }
@@ -165,9 +177,9 @@ class CoursesPage extends StatelessWidget {
             crossAxisCount: constraints.maxWidth < 840 ? 2 : 3,
             childAspectRatio: 2.5,
           ),
-          itemCount: coursesData.length,
+          itemCount: provider.courses.length,
           itemBuilder: (context, index) => CourseItemCard(
-            course: coursesData[index],
+            course: provider.courses[index], // Ambil data dari provider
           ),
         );
       },
