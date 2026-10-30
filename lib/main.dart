@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'course_provider.dart'; // Import file provider yang baru dibuat
+import 'course_provider.dart';
+import 'course.dart';
 
 const String studentName = 'Liam Arta Febrio'; 
 const String studentId = '2415051087'; 
 
-// Data Statik Course
-final List<Map<String, dynamic>> coursesData = [
-  {'title': 'Pemrograman Mobile', 'code': 'PTI123', 'sks': 3, 'desc': 'Belajar Flutter & Dart.'},
-  {'title': 'Jaringan Komputer', 'code': 'PTI124', 'sks': 3, 'desc': 'Topologi, Subnetting, dan Cisco.'},
-  {'title': 'Sistem Basis Data', 'code': 'PTI125', 'sks': 4, 'desc': 'MySQL, Relasi, dan Normalisasi.'},
-  {'title': 'Kecerdasan Buatan', 'code': 'PTI126', 'sks': 3, 'desc': 'Fuzzy Logic, AI, Python.'},
-  {'title': 'Sistem Informasi Geografis', 'code': 'PTI127', 'sks': 3, 'desc': 'WebGIS, Pemetaan, Spasial.'},
-  {'title': 'Pemrograman Web', 'code': 'PTI128', 'sks': 3, 'desc': 'Laravel, Tailwind, PHP.'},
+// Ubah Map menjadi List<Course>
+final List<Course> coursesData = [
+  Course(title: 'Pemrograman Mobile', code: 'PTI123', sks: 3, desc: 'Belajar Flutter & Dart.'),
+  Course(title: 'Jaringan Komputer', code: 'PTI124', sks: 3, desc: 'Topologi, Subnetting, dan Cisco.'),
+  Course(title: 'Sistem Basis Data', code: 'PTI125', sks: 4, desc: 'MySQL, Relasi, dan Normalisasi.'),
+  Course(title: 'Kecerdasan Buatan', code: 'PTI126', sks: 3, desc: 'Fuzzy Logic, AI, Python.'),
+  Course(title: 'Sistem Informasi Geografis', code: 'PTI127', sks: 3, desc: 'WebGIS, Pemetaan, Spasial.'),
+  Course(title: 'Pemrograman Web', code: 'PTI128', sks: 3, desc: 'Laravel, Tailwind, PHP.'),
 ];
 
 void main() {
@@ -196,7 +197,7 @@ class ProfilePage extends StatelessWidget {
 // 3. REUSABLE WIDGETS & DETAILS
 // ==========================================
 class CourseItemCard extends StatelessWidget {
-  final Map<String, dynamic> course;
+  final Course course;
   
   // Constructor kembali bersih
   const CourseItemCard({super.key, required this.course});
@@ -208,15 +209,15 @@ class CourseItemCard extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.indigo, 
-          child: Text(course['code'].toString().substring(3), style: const TextStyle(color: Colors.white))
+          child: Text(course.code.substring(3), style: const TextStyle(color: Colors.white))
         ),
-        title: Text(course['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('${course['code']} - ${course['sks']} SKS'),
+        title: Text(course.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text('${course.code} - ${course.sks} SKS'),
         
         // TAHAP 7: Gunakan Consumer HANYA pada bagian ikon
         trailing: Consumer<CourseProvider>(
           builder: (context, provider, child) {
-            final isFavorite = provider.favorites.contains(course['code']);
+            final isFavorite = provider.favorites.contains(course.code);
             return Icon(
               isFavorite ? Icons.favorite : Icons.chevron_right, 
               color: isFavorite ? Colors.red : null
@@ -236,18 +237,18 @@ class CourseItemCard extends StatelessWidget {
 }
 
 class CourseDetailPage extends StatelessWidget {
-  final Map<String, dynamic> course;
+  final Course course;
   
   const CourseDetailPage({super.key, required this.course});
 
   @override
   Widget build(BuildContext context) {
     // TAHAP 7: Gunakan watch() untuk mendengarkan perubahan favorit pada halaman ini
-    final isFavorite = context.watch<CourseProvider>().favorites.contains(course['code']);
+    final isFavorite = context.watch<CourseProvider>().favorites.contains(course.code);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(course['title']), 
+        title: Text(course.title), 
         backgroundColor: Colors.indigo, 
         foregroundColor: Colors.white
       ),
@@ -256,12 +257,12 @@ class CourseDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(course['title'], style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(course.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            Text('Kode: ${course['code']}', style: const TextStyle(fontSize: 16)),
-            Text('SKS: ${course['sks']}', style: const TextStyle(fontSize: 16)),
+            Text('Kode: ${course.code}', style: const TextStyle(fontSize: 16)),
+            Text('SKS: ${course.sks}', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
-            Text('Deskripsi: ${course['desc']}', style: const TextStyle(fontSize: 16)),
+            Text('Deskripsi: ${course.desc}', style: const TextStyle(fontSize: 16)),
             const Spacer(),
             SizedBox(
               width: double.infinity,
@@ -269,7 +270,7 @@ class CourseDetailPage extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () {
                   // TAHAP 7: Gunakan read() saat melakukan Action
-                  context.read<CourseProvider>().toggleFavorite(course['code']); 
+                  context.read<CourseProvider>().toggleFavorite(course.code); 
                 },
                 icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: isFavorite ? Colors.red : null),
                 label: Text(isFavorite ? 'Hapus Favorite' : 'Tambah Favorite'),
