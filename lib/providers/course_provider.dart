@@ -37,7 +37,7 @@ class CourseProvider extends ChangeNotifier {
     favorites.contains(code)
         ? favorites.remove(code)
         : favorites.add(code);
-    // notifyListeners();
+    notifyListeners();
   }
 
   // Fungsi tambahan untuk mem-filter daftar course yang difavoritkan
