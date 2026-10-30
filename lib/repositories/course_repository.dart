@@ -1,12 +1,13 @@
-import '../services/course_service.dart';
+import '../services/course_api_service.dart';
 import '../models/course.dart';
 
 class CourseRepository {
-  final CourseService service;
+  // Pastikan di sini tipenya CourseApiService, BUKAN CourseService
+  final CourseApiService apiService; 
 
-  CourseRepository(this.service);
+  CourseRepository(this.apiService);
 
   Future<List<Course>> getCourses() {
-    return service.loadCourses();
+    return apiService.getCourses(); // Memanggil getCourses dari API
   }
 }
