@@ -11,8 +11,6 @@ class Course {
     required this.desc,
   });
 
-  // BAGIAN INI YANG KURANG:
-  // Fungsi ini wajib ada untuk mengubah data JSON menjadi object Course
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
       title: json['title'],
