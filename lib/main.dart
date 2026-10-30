@@ -14,7 +14,6 @@ final List<Map<String, dynamic>> coursesData = [
 ];
 
 void main() => runApp(const CourseExplorerApp());
-
 class CourseExplorerApp extends StatelessWidget {
   const CourseExplorerApp({super.key});
   
@@ -28,10 +27,6 @@ class CourseExplorerApp extends StatelessWidget {
     );
   }
 }
-
-// ==========================================
-// 1. RESPONSIVE SHELL (Adaptive Navigation)
-// ==========================================
 class ResponsiveShell extends StatefulWidget {
   const ResponsiveShell({super.key});
   
@@ -41,7 +36,29 @@ class ResponsiveShell extends StatefulWidget {
 
 class _ResponsiveShellState extends State<ResponsiveShell> {
   int _currentIndex = 0;
-  final List<Widget> _pages = const [HomePage(), CoursesPage(), ProfilePage()];
+  Set<String> favoriteCourseCodes = {};
+
+  void _toggleFavorite(String code) {
+    setState(() {
+      if (favoriteCourseCodes.contains(code)) {
+        favoriteCourseCodes.remove(code);
+      } else {
+        favoriteCourseCodes.add(code);
+      }
+    });
+  }
+
+  Widget _buildCurrentPage() {
+    switch (_currentIndex) {
+      case 0: return const HomePage();
+      case 1: return CoursesPage(
+        favorites: favoriteCourseCodes, 
+        onToggleFavorite: _toggleFavorite,
+      );
+      case 2: return const ProfilePage();
+      default: return const HomePage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +70,6 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // Mode Expanded (Lebar >= 840) -> NavigationRail
           if (constraints.maxWidth >= 840) {
             return Row(
               children: [
@@ -68,14 +84,13 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                   ],
                 ),
                 const VerticalDivider(width: 1, thickness: 1),
-                Expanded(child: _pages[_currentIndex]),
+                Expanded(child: _buildCurrentPage()),
               ],
             );
           }
-          // Mode Compact/Medium (Lebar < 840) -> NavigationBar
           return Column(
             children: [
-              Expanded(child: _pages[_currentIndex]),
+              Expanded(child: _buildCurrentPage()),
               NavigationBar(
                 selectedIndex: _currentIndex,
                 onDestinationSelected: (index) => setState(() => _currentIndex = index),
@@ -93,9 +108,6 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   }
 }
 
-// ==========================================
-// 2. PAGES (Home, Courses, Profile)
-// ==========================================
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   
@@ -117,20 +129,25 @@ class HomePage extends StatelessWidget {
 }
 
 class CoursesPage extends StatelessWidget {
-  const CoursesPage({super.key});
+  final Set<String> favorites;
+  final Function(String) onToggleFavorite;
+
+  const CoursesPage({super.key, required this.favorites, required this.onToggleFavorite});
   
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Jika Compact (< 600) gunakan ListView
         if (constraints.maxWidth < 600) {
           return ListView.builder(
             itemCount: coursesData.length,
-            itemBuilder: (context, index) => CourseItemCard(course: coursesData[index]),
+            itemBuilder: (context, index) => CourseItemCard(
+              course: coursesData[index],
+              isFavorite: favorites.contains(coursesData[index]['code']),
+              onToggleFavorite: onToggleFavorite,
+            ),
           );
         }
-        // Jika Medium/Expanded (>= 600) gunakan GridView
         return GridView.builder(
           padding: const EdgeInsets.all(8),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -138,7 +155,11 @@ class CoursesPage extends StatelessWidget {
             childAspectRatio: 2.5,
           ),
           itemCount: coursesData.length,
-          itemBuilder: (context, index) => CourseItemCard(course: coursesData[index]),
+          itemBuilder: (context, index) => CourseItemCard(
+            course: coursesData[index],
+            isFavorite: favorites.contains(coursesData[index]['code']),
+            onToggleFavorite: onToggleFavorite,
+          ),
         );
       },
     );
@@ -168,14 +189,17 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 3. REUSABLE WIDGETS & DETAILS
-// ==========================================
-
-// Reusable Widget 1: Course Card
 class CourseItemCard extends StatelessWidget {
   final Map<String, dynamic> course;
-  const CourseItemCard({super.key, required this.course});
+  final bool isFavorite;
+  final Function(String) onToggleFavorite;
+
+  const CourseItemCard({
+    super.key, 
+    required this.course, 
+    required this.isFavorite, 
+    required this.onToggleFavorite
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -188,12 +212,18 @@ class CourseItemCard extends StatelessWidget {
         ),
         title: Text(course['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${course['code']} - ${course['sks']} SKS'),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Icon(
+          isFavorite ? Icons.favorite : Icons.chevron_right, 
+          color: isFavorite ? Colors.red : null
+        ),
         onTap: () {
-          // Passing data via constructor
           Navigator.push(
             context, 
-            MaterialPageRoute(builder: (_) => CourseDetailPage(course: course))
+            MaterialPageRoute(builder: (_) => CourseDetailPage(
+              course: course,
+              isFavorite: isFavorite,
+              onToggleFavorite: onToggleFavorite,
+            ))
           );
         },
       ),
@@ -201,23 +231,23 @@ class CourseItemCard extends StatelessWidget {
   }
 }
 
-// Halaman Detail (Passing Data & Interaksi State)
-class CourseDetailPage extends StatefulWidget {
+class CourseDetailPage extends StatelessWidget {
   final Map<String, dynamic> course;
-  const CourseDetailPage({super.key, required this.course});
+  final bool isFavorite;
+  final Function(String) onToggleFavorite;
 
-  @override
-  State<CourseDetailPage> createState() => _CourseDetailPageState();
-}
-
-class _CourseDetailPageState extends State<CourseDetailPage> {
-  bool isFavorite = false; 
+  const CourseDetailPage({
+    super.key, 
+    required this.course, 
+    required this.isFavorite, 
+    required this.onToggleFavorite
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.course['title']), 
+        title: Text(course['title']), 
         backgroundColor: Colors.indigo, 
         foregroundColor: Colors.white
       ),
@@ -226,22 +256,20 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.course['title'], style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(course['title'], style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            Text('Kode: ${widget.course['code']}', style: const TextStyle(fontSize: 16)),
-            Text('SKS: ${widget.course['sks']}', style: const TextStyle(fontSize: 16)),
+            Text('Kode: ${course['code']}', style: const TextStyle(fontSize: 16)),
+            Text('SKS: ${course['sks']}', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
-            Text('Deskripsi: ${widget.course['desc']}', style: const TextStyle(fontSize: 16)),
+            Text('Deskripsi: ${course['desc']}', style: const TextStyle(fontSize: 16)),
             const Spacer(),
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  setState(() => isFavorite = !isFavorite);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(isFavorite ? 'Ditambahkan ke Favorite' : 'Dihapus dari Favorite'))
-                  );
+                  onToggleFavorite(course['code']); 
+                  Navigator.pop(context);
                 },
                 icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: isFavorite ? Colors.red : null),
                 label: Text(isFavorite ? 'Hapus Favorite' : 'Tambah Favorite'),
@@ -254,7 +282,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 }
 
-// Reusable Widget 2: Feedback Form
 class FeedbackFormWidget extends StatefulWidget {
   const FeedbackFormWidget({super.key});
   
@@ -276,7 +303,7 @@ class _FeedbackFormWidgetState extends State<FeedbackFormWidget> {
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Tutup dialog
+                Navigator.pop(context); 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Feedback berhasil dikirim!'))
                 );
