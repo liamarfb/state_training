@@ -48,6 +48,24 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
+// TAHAP 7: Fungsi memproses PUT dari UI
+  Future<bool> editCourse(int id, Course course) async {
+    isSaving = true;
+    notifyListeners();
+    
+    try {
+      await repository.updateCourse(id, course);
+      await loadCourses(); // Refresh list setelah berhasil update
+      return true;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
+  
   // --- Fungsi Favorites dari tahap sebelumnya ---
   bool isFavorite(String code) => favorites.contains(code);
 

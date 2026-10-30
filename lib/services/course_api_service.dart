@@ -38,4 +38,17 @@ class CourseApiService {
     final errorBody = jsonDecode(response.body);
     throw Exception(errorBody['error'] ?? 'Gagal membuat course');
   }
+
+  // TAHAP 7: Fungsi PUT untuk memperbarui data
+  Future<void> updateCourse(int id, Course course) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/courses/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(course.toJson()),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Gagal memperbarui course');
+    }
+  }
 }

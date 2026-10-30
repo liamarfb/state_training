@@ -14,4 +14,9 @@ class CourseRepository {
   Future<Course> createCourse(Course course) {
     return apiService.createCourse(course);
   }
+
+  // TAHAP 7: Fungsi PUT (Meneruskan dari Service)
+  Future<void> updateCourse(int id, Course course) {
+    return apiService.updateCourse(id, course);
+  }
 }
