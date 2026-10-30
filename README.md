@@ -16,3 +16,11 @@ Liam Arta Febrio (2415051087)
 
 **Arah Dependensi Utama:**
 Screen/Widget -> Provider -> Repository -> Service / Data Source
+
+## Catatan Endpoint API (Worksheet 7)
+*   **Base URL:** `https://course-api-pearl.vercel.app`
+*   **Endpoint (List Courses):** `/courses`
+*   **Method:** GET
+*   **Status Code:** 200 OK
+*   **Resource:** Course Data
+*   **Struktur JSON:** Terdiri dari field `id`, `code`, `title`, `credits`, dan `status`.
