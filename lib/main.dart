@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'course_provider.dart';
 
 const String studentName = 'Liam Arta Febrio'; 
 const String studentId = '2415051087'; 
 
 // Data Statik Course
-final List> coursesData = [
+final List<Map<String, dynamic>> coursesData = [
   {'title': 'Pemrograman Mobile', 'code': 'PTI123', 'sks': 3, 'desc': 'Belajar Flutter & Dart.'},
   {'title': 'Jaringan Komputer', 'code': 'PTI124', 'sks': 3, 'desc': 'Topologi, Subnetting, dan Cisco.'},
   {'title': 'Sistem Basis Data', 'code': 'PTI125', 'sks': 4, 'desc': 'MySQL, Relasi, dan Normalisasi.'},
@@ -13,7 +15,14 @@ final List> coursesData = [
   {'title': 'Pemrograman Web', 'code': 'PTI128', 'sks': 3, 'desc': 'Laravel, Tailwind, PHP.'},
 ];
 
-void main() => runApp(const CourseExplorerApp());
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CourseProvider(),
+      child: const CourseExplorerApp(),
+    ),
+  );
+}
 
 class CourseExplorerApp extends StatelessWidget {
   const CourseExplorerApp({super.key});
@@ -365,10 +374,33 @@ class _FeedbackFormWidgetState extends State<FeedbackFormWidget> {
             child: ElevatedButton(
               onPressed: _submitFeedback, 
               child: const Text('Submit Feedback')
+
+              
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+// ==========================================
+// TAHAP 5: ChangeNotifier & notifyListeners()
+// ==========================================
+class CourseProvider extends ChangeNotifier {
+  // Collection untuk menyimpan kode mata kuliah yang difavoritkan
+  final Set<String> favorites = {};
+
+  // Method untuk menambah/menghapus favorit
+  void toggleFavorite(String code) {
+    if (favorites.contains(code)) {
+      favorites.remove(code);
+    } else {
+      favorites.add(code);
+    }
+    
+    // Ini sangat penting! Berfungsi memberi tahu widget yang 'mendengar'
+    // bahwa ada perubahan data sehingga mereka harus me-rebuild UI.
+    notifyListeners();
   }
 }
