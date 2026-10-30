@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
 
-import 'services/course_api_service.dart'; // Import service baru
+import 'services/course_api_service.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'screens/responsive_shell.dart';
+import 'supabase_config.dart'; // Import file konfigurasi yang baru dibuat
 
-// URL dasar tanpa '/courses', karena endpoint dirakit di dalam Service
+// URL API Latihan (masih dipakai sementara)
 const String apiUrl = 'https://course-api-pearl.vercel.app'; 
 
-void main() {
+Future<void> main() async {
+  // Wajib dipanggil jika main() menggunakan async
   WidgetsFlutterBinding.ensureInitialized(); 
 
-  // Injeksi dependensi arsitektur
-  final apiService = CourseApiService(apiUrl);
-  final repository = CourseRepository(apiService);
+  // Inisialisasi Supabase menggunakan variabel dari supabase_config.dart
+  await Supabase.initialize(
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
+  );
+
+  // Perakitan arsitektur tetap dilakukan setelah inisialisasi
+  final repository = CourseRepository(CourseApiService(apiUrl));
 
   runApp(
     ChangeNotifierProvider(
