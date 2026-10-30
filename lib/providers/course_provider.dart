@@ -9,8 +9,10 @@ class CourseProvider extends ChangeNotifier {
 
   final Set<String> favorites = {};
   
+  // Variabel state hanya ditulis SATU KALI di sini
   List<Course> courses = [];
   bool isLoading = false;
+  bool isSaving = false; // Tambahan Tahap 6
   String? error;
 
   Future<void> loadCourses() async {
@@ -28,11 +30,27 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
-  // --- TAMBAHAN TAHAP 13 ---
-  // Fungsi cek favorite sesuai modul
+  // TAHAP 6: Fungsi memproses POST dari UI
+  Future<bool> addCourse(Course course) async {
+    isSaving = true;
+    notifyListeners();
+    
+    try {
+      await repository.createCourse(course);
+      await loadCourses(); // Refresh list dengan memanggil dari API lagi
+      return true;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
+
+  // --- Fungsi Favorites dari tahap sebelumnya ---
   bool isFavorite(String code) => favorites.contains(code);
 
-  // Modifikasi toggle sesuai modul (pakai ternary operator)
   void toggleFavorite(String code) {
     favorites.contains(code)
         ? favorites.remove(code)
@@ -40,7 +58,6 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Fungsi tambahan untuk mem-filter daftar course yang difavoritkan
   List<Course> get favoriteCoursesList {
     return courses.where((course) => favorites.contains(course.code)).toList();
   }

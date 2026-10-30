@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_item_card.dart';
-import '../widgets/error_view.dart'; // Tambahkan import ini
+import '../widgets/error_view.dart';
+import 'course_add_page.dart'; // Import halaman form tambah data
 
 class CoursesPage extends StatelessWidget {
   const CoursesPage({super.key});
@@ -20,7 +21,7 @@ class CoursesPage extends StatelessWidget {
     if (provider.error != null) {
       return ErrorView(
         message: provider.error!,
-        onRetry: provider.loadCourses, // Memanggil ulang method GET dari provider
+        onRetry: provider.loadCourses,
       );
     }
 
@@ -32,28 +33,43 @@ class CoursesPage extends StatelessWidget {
     }
 
     // 4. STATE SUCCESS
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 600) {
-          return ListView.builder(
+    return Scaffold(
+      backgroundColor: Colors.transparent, // Menyesuaikan warna background dengan ResponsiveShell
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 600) {
+            return ListView.builder(
+              itemCount: provider.courses.length,
+              itemBuilder: (context, index) => CourseItemCard(
+                course: provider.courses[index],
+              ),
+            );
+          }
+          return GridView.builder(
+            padding: const EdgeInsets.all(8),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: constraints.maxWidth < 840 ? 2 : 3,
+              childAspectRatio: 2.5,
+            ),
             itemCount: provider.courses.length,
             itemBuilder: (context, index) => CourseItemCard(
               course: provider.courses[index],
             ),
           );
-        }
-        return GridView.builder(
-          padding: const EdgeInsets.all(8),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: constraints.maxWidth < 840 ? 2 : 3,
-            childAspectRatio: 2.5,
-          ),
-          itemCount: provider.courses.length,
-          itemBuilder: (context, index) => CourseItemCard(
-            course: provider.courses[index],
-          ),
-        );
-      },
+        },
+      ),
+      // Tombol FAB ditambahkan di sini, sejajar dengan body Scaffold
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (_) => const CourseAddPage())
+          );
+        },
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

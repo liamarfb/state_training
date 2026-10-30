@@ -2,12 +2,16 @@ import '../services/course_api_service.dart';
 import '../models/course.dart';
 
 class CourseRepository {
-  // Pastikan di sini tipenya CourseApiService, BUKAN CourseService
-  final CourseApiService apiService; 
+  final CourseApiService apiService;
 
   CourseRepository(this.apiService);
 
   Future<List<Course>> getCourses() {
-    return apiService.getCourses(); // Memanggil getCourses dari API
+    return apiService.getCourses();
+  }
+
+  // TAHAP 6: Fungsi POST dari service
+  Future<Course> createCourse(Course course) {
+    return apiService.createCourse(course);
   }
 }

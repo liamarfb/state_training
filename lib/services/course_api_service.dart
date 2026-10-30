@@ -19,4 +19,23 @@ class CourseApiService {
         .map((e) => Course.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  // TAHAP 6: Fungsi POST untuk membuat data baru
+  Future<Course> createCourse(Course course) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/courses'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(course.toJson()),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return Course.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+    }
+
+    // Ambil pesan error dari API jika ada
+    final errorBody = jsonDecode(response.body);
+    throw Exception(errorBody['error'] ?? 'Gagal membuat course');
+  }
 }
