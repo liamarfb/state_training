@@ -5,20 +5,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'repositories/course_repository.dart';
 import 'providers/course_provider.dart';
 import 'screens/responsive_shell.dart';
-import 'services/course_supabase_service.dart'; // Menggunakan Supabase service
+import 'services/course_data_source.dart'; // Import abstract class
+import 'services/course_supabase_service.dart';
 import 'supabase_config.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); 
 
-  // Inisialisasi Supabase (menggunakan 'publishableKey' sesuai update terbaru SDK)
   await Supabase.initialize(
     url: supabaseUrl,
     publishableKey: supabaseAnonKey, 
   );
 
-  // Perakitan arsitektur (hanya dideklarasikan SATU KALI di sini)
-  final repository = CourseRepository(CourseSupabaseService());
+  // TAHAP 16: Penegasan implementasi Dependency Inversion
+  final CourseDataSource dataSource = CourseSupabaseService();
+  final repository = CourseRepository(dataSource);
 
   runApp(
     ChangeNotifierProvider(

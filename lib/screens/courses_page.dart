@@ -33,43 +33,66 @@ class CoursesPage extends StatelessWidget {
     }
 
     // 4. STATE SUCCESS
+    // 4. STATE SUCCESS
     return Scaffold(
-      backgroundColor: Colors.transparent, // Menyesuaikan warna background dengan ResponsiveShell
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 600) {
-            return ListView.builder(
-              itemCount: provider.courses.length,
-              itemBuilder: (context, index) => CourseItemCard(
-                course: provider.courses[index],
-              ),
-            );
-          }
-          return GridView.builder(
-            padding: const EdgeInsets.all(8),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: constraints.maxWidth < 840 ? 2 : 3,
-              childAspectRatio: 2.5,
+      backgroundColor: Colors.transparent,
+      body: Column(
+        children: [
+          // TAHAP 16: Syarat menampilkan identitas
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.indigo.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.indigo.shade200),
             ),
-            itemCount: provider.courses.length,
-            itemBuilder: (context, index) => CourseItemCard(
-              course: provider.courses[index],
+            child: const Text(
+              'NIM: 2415051087 • Nama: Liam Arta Febrio', // Sesuaikan jika perlu
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo),
+              textAlign: TextAlign.center,
             ),
-          );
-        },
+          ),
+          
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 600) {
+                  return ListView.builder(
+                    itemCount: provider.courses.length,
+                    itemBuilder: (context, index) => CourseItemCard(
+                      course: provider.courses[index],
+                    ),
+                  );
+                }
+                return GridView.builder(
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: constraints.maxWidth < 840 ? 2 : 3,
+                    childAspectRatio: 2.5,
+                  ),
+                  itemCount: provider.courses.length,
+                  itemBuilder: (context, index) => CourseItemCard(
+                    course: provider.courses[index],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
-      // Tombol FAB ditambahkan di sini, sejajar dengan body Scaffold
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context, 
-            MaterialPageRoute(builder: (_) => const CourseAddPage())
+            MaterialPageRoute(builder: (_) => const CourseAddPage()) 
           );
         },
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
       ),
-    );
-  }
-}
+    ); // 1. Ini penutup dari -> return Scaffold(...);
+  } // 2. Ini penutup dari -> Widget build(BuildContext context) {
+} // 3. Ini penutup dari -> class ... extends StatelessWidget {
