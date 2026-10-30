@@ -19,7 +19,13 @@ class CourseItemCard extends StatelessWidget {
           child: Text(course.code.substring(3), style: const TextStyle(color: Colors.white))
         ),
         title: Text(course.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('${course.code} - ${course.sks} SKS'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${course.code} - ${course.credits} SKS'),
+            Text('Status: ${course.status}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+          ],
+        ),
         
         trailing: Consumer<CourseProvider>(
           builder: (context, provider, child) {

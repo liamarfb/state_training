@@ -27,9 +27,9 @@ class CourseDetailPage extends StatelessWidget {
             Text(course.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             Text('Kode: ${course.code}', style: const TextStyle(fontSize: 16)),
-            Text('SKS: ${course.sks}', style: const TextStyle(fontSize: 16)),
+            Text('SKS: ${course.credits}', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
-            Text('Deskripsi: ${course.desc}', style: const TextStyle(fontSize: 16)),
+            Text('Status: ${course.status.toUpperCase()}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const Spacer(),
             SizedBox(
               width: double.infinity,

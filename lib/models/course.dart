@@ -1,22 +1,32 @@
 class Course {
-  final String title;
+  final int? id;
   final String code;
-  final int sks;
-  final String desc;
+  final String title;
+  final int credits; // Sebelumnya sks
+  final String status; // Sebelumnya desc
 
-  Course({
-    required this.title,
+  const Course({
+    this.id,
     required this.code,
-    required this.sks,
-    required this.desc,
+    required this.title,
+    required this.credits,
+    this.status = 'planned',
   });
 
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
-      title: json['title'],
-      code: json['code'],
-      sks: json['sks'],
-      desc: json['desc'],
+      id: json['id'] as int?,
+      code: json['code'] as String,
+      title: json['title'] as String,
+      credits: json['credits'] as int,
+      status: (json['status'] as String?) ?? 'planned',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'code': code,
+    'title': title,
+    'credits': credits,
+    'status': status,
+  };
 }
