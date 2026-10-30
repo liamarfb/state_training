@@ -4,7 +4,7 @@ const String studentName = 'Liam Arta Febrio';
 const String studentId = '2415051087'; 
 
 // Data Statik Course
-final List<Map<String, dynamic>> coursesData = [
+final List> coursesData = [
   {'title': 'Pemrograman Mobile', 'code': 'PTI123', 'sks': 3, 'desc': 'Belajar Flutter & Dart.'},
   {'title': 'Jaringan Komputer', 'code': 'PTI124', 'sks': 3, 'desc': 'Topologi, Subnetting, dan Cisco.'},
   {'title': 'Sistem Basis Data', 'code': 'PTI125', 'sks': 4, 'desc': 'MySQL, Relasi, dan Normalisasi.'},
@@ -14,6 +14,7 @@ final List<Map<String, dynamic>> coursesData = [
 ];
 
 void main() => runApp(const CourseExplorerApp());
+
 class CourseExplorerApp extends StatelessWidget {
   const CourseExplorerApp({super.key});
   
@@ -27,6 +28,10 @@ class CourseExplorerApp extends StatelessWidget {
     );
   }
 }
+
+// ==========================================
+// 1. RESPONSIVE SHELL (Tahap 3 - Lifting State Up)
+// ==========================================
 class ResponsiveShell extends StatefulWidget {
   const ResponsiveShell({super.key});
   
@@ -34,31 +39,32 @@ class ResponsiveShell extends StatefulWidget {
   State<ResponsiveShell> createState() => _ResponsiveShellState();
 }
 
-// TAHAP 3
-
 class _ResponsiveShellState extends State<ResponsiveShell> {
   int _currentIndex = 0;
-  Set<String> favoriteCourseCodes = {};
+  
+  // TAHAP 3: State ditarik ke atas (parent)
+  Set<String> favoriteCourses = {};
 
-  void _toggleFavorite(String code) {
+  void toggleFavorite(String code) {
     setState(() {
-      if (favoriteCourseCodes.contains(code)) {
-        favoriteCourseCodes.remove(code);
+      if (favoriteCourses.contains(code)) {
+        favoriteCourses.remove(code);
       } else {
-        favoriteCourseCodes.add(code);
+        favoriteCourses.add(code);
       }
     });
   }
 
-  Widget _buildCurrentPage() {
-    switch (_currentIndex) {
-      case 0: return const HomePage();
+  // Fungsi untuk menggantikan _pages agar bisa passing data (Tahap 2)
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0: return HomePage(); // Hapus 'const' karena HomePage sekarang dinamis (Tahap 4)
       case 1: return CoursesPage(
-        favorites: favoriteCourseCodes, 
-        onToggleFavorite: _toggleFavorite,
-      );
+          favorites: favoriteCourses,
+          onToggle: toggleFavorite,
+        );
       case 2: return const ProfilePage();
-      default: return const HomePage();
+      default: return HomePage(); // Hapus 'const' juga
     }
   }
 
@@ -86,13 +92,13 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                   ],
                 ),
                 const VerticalDivider(width: 1, thickness: 1),
-                Expanded(child: _buildCurrentPage()),
+                Expanded(child: _buildPage(_currentIndex)),
               ],
             );
           }
           return Column(
             children: [
-              Expanded(child: _buildCurrentPage()),
+              Expanded(child: _buildPage(_currentIndex)),
               NavigationBar(
                 selectedIndex: _currentIndex,
                 onDestinationSelected: (index) => setState(() => _currentIndex = index),
@@ -110,8 +116,15 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   }
 }
 
+// ==========================================
+// 2. PAGES (Home, Courses, Profile)
+// ==========================================
+
+// TAHAP 4: Eksperimen ValueNotifier dan ValueListenableBuilder
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final ValueNotifier<int> counter = ValueNotifier(0);
+  
+  HomePage({super.key});
   
   @override
   Widget build(BuildContext context) {
@@ -124,17 +137,41 @@ class HomePage extends StatelessWidget {
           const Text('Selamat Datang di Course Explorer!', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           Text('$studentId - $studentName', style: const TextStyle(fontSize: 18, color: Colors.grey)),
+          
+          const SizedBox(height: 50),
+          const Text('Eksperimen ValueNotifier:', style: TextStyle(color: Colors.indigo)),
+          const SizedBox(height: 10),
+          
+          // ValueListenableBuilder hanya merender ulang bagian Teks ini saja!
+          ValueListenableBuilder<int>(
+            valueListenable: counter,
+            builder: (context, value, child) {
+              return Text(
+                'Jumlah Klik: $value',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          
+          ElevatedButton(
+            onPressed: () {
+              counter.value++; // Ubah nilai, UI otomatis update
+            },
+            child: const Text('Tambah Klik'),
+          ),
         ],
       ),
     );
   }
 }
 
+// TAHAP 2: Prop Drilling di halaman Courses
 class CoursesPage extends StatelessWidget {
   final Set<String> favorites;
-  final Function(String) onToggleFavorite;
+  final Function(String) onToggle;
 
-  const CoursesPage({super.key, required this.favorites, required this.onToggleFavorite});
+  const CoursesPage({super.key, required this.favorites, required this.onToggle});
   
   @override
   Widget build(BuildContext context) {
@@ -146,7 +183,7 @@ class CoursesPage extends StatelessWidget {
             itemBuilder: (context, index) => CourseItemCard(
               course: coursesData[index],
               isFavorite: favorites.contains(coursesData[index]['code']),
-              onToggleFavorite: onToggleFavorite,
+              onToggle: onToggle,
             ),
           );
         }
@@ -160,7 +197,7 @@ class CoursesPage extends StatelessWidget {
           itemBuilder: (context, index) => CourseItemCard(
             course: coursesData[index],
             isFavorite: favorites.contains(coursesData[index]['code']),
-            onToggleFavorite: onToggleFavorite,
+            onToggle: onToggle,
           ),
         );
       },
@@ -191,17 +228,17 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
+// ==========================================
+// 3. REUSABLE WIDGETS & DETAILS
+// ==========================================
+
+// TAHAP 2: Prop Drilling di dalam Card
 class CourseItemCard extends StatelessWidget {
   final Map<String, dynamic> course;
   final bool isFavorite;
-  final Function(String) onToggleFavorite;
+  final Function(String) onToggle;
 
-  const CourseItemCard({
-    super.key, 
-    required this.course, 
-    required this.isFavorite, 
-    required this.onToggleFavorite
-  });
+  const CourseItemCard({super.key, required this.course, required this.isFavorite, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
@@ -214,17 +251,14 @@ class CourseItemCard extends StatelessWidget {
         ),
         title: Text(course['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${course['code']} - ${course['sks']} SKS'),
-        trailing: Icon(
-          isFavorite ? Icons.favorite : Icons.chevron_right, 
-          color: isFavorite ? Colors.red : null
-        ),
+        trailing: Icon(isFavorite ? Icons.favorite : Icons.chevron_right, color: isFavorite ? Colors.red : null),
         onTap: () {
           Navigator.push(
             context, 
             MaterialPageRoute(builder: (_) => CourseDetailPage(
               course: course,
-              isFavorite: isFavorite,
-              onToggleFavorite: onToggleFavorite,
+              isFavorite: isFavorite, 
+              onToggle: onToggle, 
             ))
           );
         },
@@ -233,17 +267,13 @@ class CourseItemCard extends StatelessWidget {
   }
 }
 
+// TAHAP 2: Tujuan akhir Prop Drilling
 class CourseDetailPage extends StatelessWidget {
   final Map<String, dynamic> course;
   final bool isFavorite;
-  final Function(String) onToggleFavorite;
+  final Function(String) onToggle;
 
-  const CourseDetailPage({
-    super.key, 
-    required this.course, 
-    required this.isFavorite, 
-    required this.onToggleFavorite
-  });
+  const CourseDetailPage({super.key, required this.course, required this.isFavorite, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
@@ -270,8 +300,8 @@ class CourseDetailPage extends StatelessWidget {
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  onToggleFavorite(course['code']); 
-                  Navigator.pop(context);
+                  onToggle(course['code']); 
+                  Navigator.pop(context); 
                 },
                 icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: isFavorite ? Colors.red : null),
                 label: Text(isFavorite ? 'Hapus Favorite' : 'Tambah Favorite'),
