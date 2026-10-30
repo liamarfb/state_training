@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class CourseProvider extends ChangeNotifier {
   final Set<String> favorites = {};
 
-  void toggleFavorite(String id) {
-    if (favorites.contains(id)) {
-      favorites.remove(id);
+  void toggleFavorite(String code) {
+    if (favorites.contains(code)) {
+      favorites.remove(code);
     } else {
-      favorites.add(id);
+      favorites.add(code);
     }
     notifyListeners();
   }
