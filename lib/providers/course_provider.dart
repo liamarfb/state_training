@@ -28,12 +28,20 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
+  // --- TAMBAHAN TAHAP 13 ---
+  // Fungsi cek favorite sesuai modul
+  bool isFavorite(String code) => favorites.contains(code);
+
+  // Modifikasi toggle sesuai modul (pakai ternary operator)
   void toggleFavorite(String code) {
-    if (favorites.contains(code)) {
-      favorites.remove(code);
-    } else {
-      favorites.add(code);
-    }
+    favorites.contains(code)
+        ? favorites.remove(code)
+        : favorites.add(code);
     notifyListeners();
+  }
+
+  // Fungsi tambahan untuk mem-filter daftar course yang difavoritkan
+  List<Course> get favoriteCoursesList {
+    return courses.where((course) => favorites.contains(course.code)).toList();
   }
 }

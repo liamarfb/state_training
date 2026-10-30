@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'courses_page.dart';
+import 'favorites_page.dart'; // Import halaman baru
 import 'profile_page.dart';
 
 class ResponsiveShell extends StatefulWidget {
@@ -13,10 +14,12 @@ class ResponsiveShell extends StatefulWidget {
 class _ResponsiveShellState extends State<ResponsiveShell> {
   int _currentIndex = 0;
   
+  // Tambahkan FavoritesPage ke dalam list _pages
   final List<Widget> _pages = const [
     HomePage(), 
     CoursesPage(), 
-    ProfilePage()
+    FavoritesPage(), // Index 2
+    ProfilePage()    // Index 3
   ];
 
   @override
@@ -39,6 +42,8 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                   destinations: const [
                     NavigationRailDestination(icon: Icon(Icons.home), label: Text('Home')),
                     NavigationRailDestination(icon: Icon(Icons.school), label: Text('Courses')),
+                    // Tambahan menu di mode tablet/desktop
+                    NavigationRailDestination(icon: Icon(Icons.favorite), label: Text('Favorites')),
                     NavigationRailDestination(icon: Icon(Icons.person), label: Text('Profile')),
                   ],
                 ),
@@ -56,6 +61,8 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                 destinations: const [
                   NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
                   NavigationDestination(icon: Icon(Icons.school), label: 'Courses'),
+                  // Tambahan menu di mode mobile
+                  NavigationDestination(icon: Icon(Icons.favorite), label: 'Favorites'),
                   NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
                 ],
               ),

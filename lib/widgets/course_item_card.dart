@@ -23,7 +23,8 @@ class CourseItemCard extends StatelessWidget {
         
         trailing: Consumer<CourseProvider>(
           builder: (context, provider, child) {
-            final isFavorite = provider.favorites.contains(course.code);
+            // Gunakan fungsi isFavorite sesuai modul
+            final isFavorite = provider.isFavorite(course.code); 
             return Icon(
               isFavorite ? Icons.favorite : Icons.chevron_right, 
               color: isFavorite ? Colors.red : null

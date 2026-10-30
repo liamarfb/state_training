@@ -10,7 +10,8 @@ class CourseDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFavorite = context.watch<CourseProvider>().favorites.contains(course.code);
+    // Gunakan fungsi isFavorite sesuai modul
+    final isFavorite = context.watch<CourseProvider>().isFavorite(course.code);
 
     return Scaffold(
       appBar: AppBar(
