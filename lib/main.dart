@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'course_provider.dart';
 import 'course.dart'; // Import model
 import 'services/course_service.dart'; // Import service Tahap 9
+import 'repositories/course_repository.dart';
 
 const String studentName = 'Liam Arta Febrio'; 
 const String studentId = '2415051087'; 
@@ -19,21 +20,16 @@ final List<Course> coursesData = [
 
 // TAHAP 9: Ubah main menjadi async untuk menguji service
 void main() async {
-  // Wajib dipanggil jika ada proses async sebelum runApp
   WidgetsFlutterBinding.ensureInitialized(); 
   
-  // Uji coba service dari Tahap 9
-  try {
-    final service = CourseService();
-    final courses = await service.loadCourses();
-    debugPrint('BERHASIL MEMUAT ${courses.length} MATA KULIAH DARI JSON');
-  } catch (e) {
-    debugPrint('Error memuat data JSON: $e');
-  }
+  // Inisialisasi Service dan Repository di sini
+  final service = CourseService();
+  final repository = CourseRepository(service);
 
   runApp(
     ChangeNotifierProvider(
-      create: (context) => CourseProvider(),
+      // Masukkan repository ke dalam Provider
+      create: (context) => CourseProvider(repository)..loadCoursesData(),
       child: const CourseExplorerApp(),
     ),
   );
