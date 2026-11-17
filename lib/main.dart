@@ -1,44 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import 'repositories/course_repository.dart';
-import 'providers/course_provider.dart';
-import 'screens/responsive_shell.dart';
-import 'services/course_data_source.dart'; // Import abstract class
-import 'services/course_supabase_service.dart';
-import 'supabase_config.dart';
+import 'pages/login_page.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); 
-
+  WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
-    url: supabaseUrl,
-    publishableKey: supabaseAnonKey, 
+    url: 'https://lioxzbwmmikzcuyarfpg.supabase.co',
+    anonKey: 'sb_publishable_h5kI_I6E7B3fOFoSf02X5g_vh52GcQj',
   );
-
-  // TAHAP 16: Penegasan implementasi Dependency Inversion
-  final CourseDataSource dataSource = CourseSupabaseService();
-  final repository = CourseRepository(dataSource);
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => CourseProvider(repository)..loadCourses(),
-      child: const CourseExplorerApp(),
-    ),
-  );
+  runApp(const KosFinderApp());
 }
 
-class CourseExplorerApp extends StatelessWidget {
-  const CourseExplorerApp({super.key});
-  
+class KosFinderApp extends StatelessWidget {
+  const KosFinderApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Course Explorer',
-      theme: ThemeData(primarySwatch: Colors.indigo),
-      home: const ResponsiveShell(),
-      debugShowCheckedModeBanner: false,
+      title: 'KosFinder',
+      theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
+      home: const LoginPage(),
     );
   }
 }
