@@ -1,97 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/course_provider.dart';
+import '../services/auth_service.dart';
+import '../services/profile_service.dart';
+import '../widgets/role_guard.dart';
+import '../pages/login_page.dart';
 
-const String studentName = 'Liam Arta Febrio'; 
-const String studentId = '2415051087'; 
-
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
-  
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final Future<UserProfile?> _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture = ProfileService().getMyProfile();
+  }
+
+  Future<void> _logout() async {
+    await AuthService.instance.logout();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Ambil data jumlah course dan favorit dari Provider
-    final provider = context.watch<CourseProvider>();
-    final courseCount = provider.courses.length;
-    final favoriteCount = provider.favorites.length;
-
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        // Card Identitas
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(10)
+    return FutureBuilder<UserProfile?>(
+      future: _profileFuture,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final p = snap.data;
+        if (snap.hasError || p == null) {
+          return const Scaffold(
+            body: Center(child: Text('Gagal memuat profil')),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('KosFinder (${p.role})'),
+            actions: [
+              IconButton(
+                tooltip: 'Logout',
+                icon: const Icon(Icons.logout),
+                onPressed: _logout,
+              ),
+            ],
           ),
-          child: const Text(
-            '$studentId • $studentName',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E3A8A)), // Warna biru gelap
+          body: ListView(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: Text(p.name.isEmpty ? p.email : p.name),
+                subtitle: Text('${p.email} • ${p.role}'),
+              ),
+              const Divider(),
+              const ListTile(
+                leading: Icon(Icons.list),
+                title: Text('Daftar Kos'),
+              ),
+              if (p.isOwner || p.isAdmin)
+                const ListTile(
+                  leading: Icon(Icons.home_work),
+                  title: Text('My Kos'),
+                ),
+              if (p.isAdmin)
+                const ListTile(
+                  leading: Icon(Icons.admin_panel_settings),
+                  title: Text('Kelola Data (Admin)'),
+                ),
+            ],
           ),
-        ),
-        const SizedBox(height: 16),
-
-        // Row Summary Cards
-        Row(
-          children: [
-            Expanded(
-              child: _buildSummaryCard('Courses', courseCount.toString()),
+          floatingActionButton: RoleGuard(
+            role: p.role,
+            allowed: const ['owner', 'admin'],
+            child: FloatingActionButton.extended(
+              onPressed: () {},
+              icon: const Icon(Icons.add_home),
+              label: const Text('Tambah Kos'),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildSummaryCard('Favorites', favoriteCount.toString()),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-
-        // List Progres Materi
-        _buildProgressItem('Git & GitHub', 'done', Colors.green),
-        _buildProgressItem('Dart Fundamentals', 'done', Colors.green),
-        _buildProgressItem('State Management', 'active', Colors.green),
-      ],
-    );
-  }
-
-  // Widget bantuan untuk kotak angka summary
-  Widget _buildSummaryCard(String title, String count) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.blue.shade100)
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(color: Color(0xFF475569))), 
-          const SizedBox(height: 8),
-          Text(count, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
-        ],
-      ),
-    );
-  }
-
-  // Widget bantuan untuk list progress
-  Widget _buildProgressItem(String title, String status, Color statusColor) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade300)
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E3A8A))),
-          const SizedBox(height: 4),
-          Text(status, style: TextStyle(fontWeight: FontWeight.bold, color: statusColor)),
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 }
